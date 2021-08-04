@@ -1,3 +1,3 @@
---Creating a Database
+--Creating a Database analysis
 
 CREATE DATABASE analysis;
