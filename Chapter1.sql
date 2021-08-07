@@ -57,3 +57,31 @@ SELECT first_name
 FROM teachers
 WHERE first_name ILIKE '%am%'
 
+-- AND OR Operators
+
+SELECT * 
+FROM teachers
+WHERE school = "Myers Middle School"
+AND salary < 40000
+
+SELECT * 
+FROM teachers
+WHERE school = 'F.D. Roosevelt HS'
+AND (salary < 38000 OR salary > 40000)
+
+--Exercise Queries
+SELECT *
+FROM teachers 
+ORDER BY school ASC, last_name ASC
+
+SELECT *
+FROM teachers 
+WHERE first_name LIKE 'S%'
+AND salary > 40000
+
+SELECT *
+FROM teachers
+WHERE hire_date >= '2010-01-01'
+ORDER BY salary DESC
+
+--Chapter 1/2 Completed.
