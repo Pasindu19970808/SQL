@@ -45,3 +45,32 @@ SELECT timestap_column,
         interval_column,
         timestamp_column - interval_column as new_date
 FROM data_time_types;
+
+--Using CAST() function
+SELECT timestamp_column,
+CAST(timestamp_column as varchar(10))
+FROM data_time_types;
+
+SELECT * FROM number_data_types;
+
+SELECT numeric_column, 
+CAST(numeric_column AS integer),
+CAST(numeric_column AS varchar(6))
+FROM number_data_types;
+
+--testing with date/time (Note that unless we change datestyle, Postgresql will always follow the ISO format YYYY/MM/DD)
+DROP TABLE test
+CREATE TABLE test(
+	datestring varchar(15)
+);
+SELECT * FROM test;
+
+INSERT INTO test
+VALUES
+('2017/4/13');
+
+--we can use to_char to change how the output looks
+SELECT datestring,
+to_char(CAST (datestring AS timestamp),'DD/YYYY/MM')
+FROM test
+
