@@ -110,3 +110,14 @@ COPY us_counties_2010
 FROM 'C:\Users\ASUS\Desktop\Hands on ML\SQL\us_counties_2010.csv'
 WITH (FORMAT CSV, HEADER);
 
+SELECT * FROM us_counties_2010;
+
+SELECT geo_name, area_land 
+FROM us_counties_2010 
+ORDER BY area_land DESC
+LIMIT 5;
+
+select geo_name,internal_point_lat,internal_point_lon
+FROM us_counties_2010
+ORDER BY internal_point_lon DESC
+LIMIT 5;
