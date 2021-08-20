@@ -121,3 +121,54 @@ select geo_name,internal_point_lat,internal_point_lon
 FROM us_counties_2010
 ORDER BY internal_point_lon DESC
 LIMIT 5;
+
+--Importing subsets of columns with COPY
+CREATE TABLE supervisor_salaries(
+	town varchar(30),
+	county varchar(30),
+	supervisor varchar(30),
+	start_date date,
+	salary money,
+	benefits money
+);
+
+
+COPY supervisor_salaries (town,supervisor,salary)
+FROM 'C:\Users\Public\Documents\Postgresfiles\supervisor_salaries.csv'
+WITH (FORMAT CSV,HEADER);
+
+SELECT * FROM supervisor_salaries
+
+-- Filling in columns which are not n CSV
+
+DELETE FROM supervisor_salaries;
+
+CREATE TEMPORARY TABLE supervisor_salaries_temp (LIKE supervisor_salaries);
+
+COPY supervisor_salaries_temp (town,supervisor,salary)
+FROM 'C:\Users\Public\Documents\Postgresfiles\supervisor_salaries.csv'
+WITH (FORMAT CSV,HEADER);
+
+INSERT INTO supervisor_salaries (town, county, supervisor, salary)
+SELECT town, 'Some County',supervisor, salary
+FROM supervisor_salaries_temp;
+
+DROP TABLE supervisor_salaries_temp;
+
+SELECT * FROM supervisor_salaries;
+
+
+--EXPORTING DATA
+COPY us_counties_2010
+TO 'C:\Users\Public\Documents\Postgresfiles\us_counties_export.txt'
+WITH (FORMAT CSV,HEADER, DELIMITER '|')
+
+COPY(SELECT geo_name,state_us_abbreviation,housing_unit_count_100_percent
+FROM us_counties_2010
+ORDER BY housing_unit_count_100_percent DESC
+LIMIT 20)
+TO 'C:\Users\Public\Documents\Postgresfiles\mosthousing.csv'
+WITH (FORMAT CSV, HEADER)
+
+
+
