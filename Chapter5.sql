@@ -94,3 +94,17 @@ FROM us_counties_2010;
 SELECT 
 json_object_agg(state_us_abbreviation,p0010001)
 FROM us_counties_2010;
+
+
+--Calculatin z scores by adding over() a column
+SELECT geo_name,(p0010001 - 
+avg((CAST(p0010001 AS numeric(8,1)))) over())/
+stddev((CAST(p0010001 AS numeric(8,1)))) over()
+FROM us_counties_2010
+
+--over() is a windows function
+-- A windows function is comparable to the type of calculations that can be done with a aggregate function, but it doesnt cause rows to be grouped into a single row.
+
+--Calculating cumulative sum 
+SELECT geo_name, sum(p0040007) OVER(ORDER BY p0040007)
+FROM us_counties_2010

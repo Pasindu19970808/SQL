@@ -2,6 +2,12 @@
 
 CREATE DATABASE analysis;
 
+--Listing column names of the table 
+
+SELECT COLUMN_NAME
+FROM INFORMATION_SCHEMA.COLUMNS 
+WHERE TABLE_NAME = "us_counties_2010"
+
 --Creating a Table
 
 CREATE TABLE teachers (
