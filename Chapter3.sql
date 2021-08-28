@@ -41,7 +41,7 @@ VALUES
 ('2018-12-31 01:00 Australia/Melbourne','1 century'),
 (now(),'1 week');
 
-SELECT timestap_column,
+SELECT timestamp_column,
         interval_column,
         timestamp_column - interval_column as new_date
 FROM data_time_types;

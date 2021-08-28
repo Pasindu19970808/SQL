@@ -62,3 +62,36 @@ INSERT INTO schools_right (id, right_school) VALUES
 (3, 'Morrison Elementary'),
 (4, 'Chase Magnet Academy'),
 (6, 'Jefferson High School');
+
+SELECT * 
+FROM schools_left JOIN schools_right
+ON schools_left.id = schools_right.id
+
+SELECT *
+FROM schools_left RIGHT JOIN schools_right
+ON schools_left.id = schools_right.id;
+
+SELECT *
+FROM schools_left FULL OUTER JOIN schools_right
+ON schools_left.id = schools_right.id;
+
+SELECT *
+FROM schools_left CROSS JOIN schools_right
+ON schools_left.id = schools_right.id;
+
+-- Using NULL to Find Rows with Missing Values
+
+SELECT *
+FROM schools_left LEFT JOIN schools_right 
+ON schools_left.id = schools_right.id
+WHERE schools_right.id IS NULL;
+
+--Querying for multiple columns in tables
+SELECT schools_left.id, schools_left.left_school, schools_right.right_school
+FROM schools_left LEFT JOIN schools_right
+ON schools_left.id = schools_right.id;
+
+--Doing JOIN with table_alias
+SELECT lt.id,lt.left_school,rt.right_school
+FROM schools_left as lt LEFT JOIN schools_right as rt
+ON lt.id = rt.id;
