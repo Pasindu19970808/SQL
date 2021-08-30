@@ -95,3 +95,11 @@ ON schools_left.id = schools_right.id;
 SELECT lt.id,lt.left_school,rt.right_school
 FROM schools_left as lt LEFT JOIN schools_right as rt
 ON lt.id = rt.id;
+
+--JOIN with many tables
+
+SELECT lt.id,lt.left_school, en.enrollment,sg.grades
+FROM schools_left AS lt LEFT JOIN schools_enrollment AS en
+ON lt.id = en.id
+LEFT JOIN schools_grades as sg
+ON lt.id = sg.id;
