@@ -103,3 +103,38 @@ FROM schools_left AS lt LEFT JOIN schools_enrollment AS en
 ON lt.id = en.id
 LEFT JOIN schools_grades as sg
 ON lt.id = sg.id;
+
+CREATE TABLE us_counties_2000(
+geo_name varchar(90),
+state_us_abbreviation varchar(2),
+state_fips varchar(2),
+county_fips varchar(3),
+p0010001 integer,
+p0010002 integer,
+p0010003 integer,
+p0010004 integer,
+p0010005 integer,
+p0010006 integer,
+p0010007 integer,
+p0010008 integer,
+p0010009 integer,
+p0010010 integer,
+p0020002 integer,
+p0020003 integer
+);
+
+
+COPY us_counties_2000
+FROM 'C:\Users\Public\Documents\Postgresfiles\us_counties_2000.csv'
+WITH (FORMAT CSV,HEADER);
+
+SELECT * FROM us_counties_2000
+
+SELECT c2000.geo_name, 
+c2000.state_us_abbreviation,c2000.p0010001 AS pop_2000,
+c2010.p0010001 AS pop_2010,
+(CAST(c2010.p0010001 AS numeric(8,1)) - 
+CAST(c2000.p0010001 AS numeric(8,1)))/
+CAST(c2000.p0010001 AS numeric(8,1)) AS Pct_Change
+FROM us_counties_2000 AS c2000 INNER JOIN us_counties_2010 AS c2010
+ON c2000.state_fips = c2010.state_fips;
