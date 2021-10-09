@@ -119,11 +119,156 @@ WITH (FORMAT CSV,HEADER);
 SELECT * FROM SalesOrderHeader
 Limit 5
 
+CREATE TABLE salesorderdetail(
+	salesorderid integer REFERENCES salesorderheader (salesorderid),
+	salesorderdetailid serial,
+	orderqty int,
+	productid integer REFERENCES products_table (productid),
+	unitprice numeric(10,4),
+	unitpricediscount numeric(4,3),
+	linetotal numeric(20,5),
+	rowguid varchar(100),
+	Modified_date timestamp,
+	CONSTRAINT salesorderdetailid_key PRIMARY KEY (salesorderdetailid)
+);
+
+COPY salesorderdetail
+FROM 'C:\Users\ASUS\Desktop\Hands on ML\SQL\Product DB\SalesOrderDetail.csv'
+WITH (FORMAT CSV, HEADER);
+
+
+SELECT saleord.customer_id,
+	   saledetB.productid,saledetB.salesorderdetailid,
+	   saledetB.orderqty,saledetB.unitprice,saledetB.unitpricediscount,
+	   saledetB.linetotal,saledetB.productname,saledetB.color,
+	   saledetB.standardcost,saledetB.listprice
+FROM salesorderheader as saleord JOIN(
+SELECT saledet.salesorderID,prod.productid,saledet.salesorderdetailid,
+	   saledet.orderqty,saledet.unitprice,saledet.unitpricediscount,
+	   saledet.linetotal,prod.productname,prod.color,
+	   prod.standardcost,prod.listprice
+FROM salesorderdetail as saledet JOIN products_table as prod
+ON saledet.productid = prod.productid
+) as saledetB 
+on saleord.salesorderID = saledetB.salesorderID
 
 
 
+--Finding total spent by each customer
+SELECT aggtable.customer_id,sum(aggtable.totalspentperproduct) as totalspent
+FROM (SELECT saleord.customer_id,saledetB.orderqty,saledetB.unitprice,
+	   (saledetB.orderqty * saledetB.unitprice) as TotalSpentPerProduct
+FROM salesorderheader as saleord JOIN(
+SELECT saledet.salesorderID,prod.productid,saledet.salesorderdetailid,
+	   saledet.orderqty,saledet.unitprice,saledet.unitpricediscount,
+	   saledet.linetotal,prod.productname,prod.color,
+	   prod.standardcost,prod.listprice
+FROM salesorderdetail as saledet JOIN products_table as prod
+ON saledet.productid = prod.productid
+) as saledetB 
+ON saleord.salesorderID = saledetB.salesorderID) as aggtable
+GROUP BY aggtable.customer_id
+ORDER BY aggtable.customer_id
+
+--Find a way to include productID with max qty
+SELECT aggtable.customer_id,max(aggtable.orderqty),sum(aggtable.totalspentperproduct) as totalspent
+FROM (SELECT saleord.customer_id,saledetB.orderqty,saledetB.unitprice,
+	   (saledetB.orderqty * saledetB.unitprice) as TotalSpentPerProduct
+FROM salesorderheader as saleord JOIN(
+SELECT saledet.salesorderID,prod.productid,saledet.salesorderdetailid,
+	   saledet.orderqty,saledet.unitprice,saledet.unitpricediscount,
+	   saledet.linetotal,prod.productname,prod.color,
+	   prod.standardcost,prod.listprice
+FROM salesorderdetail as saledet JOIN products_table as prod
+ON saledet.productid = prod.productid
+) as saledetB 
+ON saleord.salesorderID = saledetB.salesorderID) as aggtable
+GROUP BY aggtable.customer_id
+ORDER BY aggtable.customer_id
+
+--Using HAVING
+--HAVING only works on the aggregation result and it should be referred to original table names
+SELECT aggtable.customer_id,sum(aggtable.totalspentperproduct) as totalspent
+FROM (SELECT saleord.customer_id,saledetB.orderqty,saledetB.unitprice,
+	   (saledetB.orderqty * saledetB.unitprice) as TotalSpentPerProduct
+FROM salesorderheader as saleord JOIN(
+SELECT saledet.salesorderID,prod.productid,saledet.salesorderdetailid,
+	   saledet.orderqty,saledet.unitprice,saledet.unitpricediscount,
+	   saledet.linetotal,prod.productname,prod.color,
+	   prod.standardcost,prod.listprice
+FROM salesorderdetail as saledet JOIN products_table as prod
+ON saledet.productid = prod.productid
+) as saledetB 
+ON saleord.salesorderID = saledetB.salesorderID) as aggtable
+GROUP BY aggtable.customer_id
+HAVING sum(aggtable.totalspentperproduct) > 10000
+ORDER BY aggtable.customer_id
 
 
+--Finding the total spent on each product
+SELECT saledetB.productid,sum(saledetB.unitprice * saledetB.orderqty)
+FROM(
+SELECT saledet.salesorderID,prod.productid,saledet.salesorderdetailid,
+	   saledet.orderqty,saledet.unitprice,saledet.unitpricediscount,
+	   saledet.linetotal,prod.productname,prod.color,
+	   prod.standardcost,prod.listprice
+FROM salesorderdetail as saledet JOIN products_table as prod
+ON saledet.productid = prod.productid
+) as saledetB
+GROUP BY saledetB.productid
 
 
+SELECT orderid.salesorderID,orderid.totalprice 
+FROM(
+SELECT salesord.salesorderID,
+	   sum((salesord.orderqty * salesord.unitprice)
+		  * (1 - salesord.unitpricediscount))
+	   as totalprice
+FROM salesorderdetail as salesord
+GROUP BY salesord.salesorderID
+) as orderid
+WHERE orderid.totalprice > 10000;
 
+SELECT salesord.salesorderID,
+	   sum((salesord.orderqty * salesord.unitprice)
+		  * (1 - salesord.unitpricediscount))
+	   as totalprice
+FROM salesorderdetail as salesord
+GROUP BY salesord.salesorderID
+HAVING sum((salesord.orderqty * salesord.unitprice)
+		  * (1 - salesord.unitpricediscount)) > 10000
+
+SELECT salesord.salesorderID,prod.productid,salesord.orderqty,
+	   salesord.unitprice,salesord.unitpricediscount,prod.color
+FROM salesorderdetail as salesord JOIN products_table as prod
+ON salesord.productid = prod.productid 
+WHERE prod.color = 'Black'
+
+-- FOLLOWING QUERIES GIVE THE SAME RESULT
+SELECT agg.salesorderID,agg.color,sum((agg.orderqty *
+	   agg.unitprice)*(1 - agg.unitpricediscount)) as totalprice
+FROM(
+SELECT salesord.salesorderID,prod.productid,salesord.orderqty,
+	   salesord.unitprice,salesord.unitpricediscount,prod.color
+FROM salesorderdetail as salesord JOIN products_table as prod
+ON salesord.productid = prod.productid 
+WHERE prod.color = 'Black') as agg
+GROUP BY agg.salesorderID,agg.color;
+
+SELECT salesord.salesorderID,prod.color,sum((salesord.orderqty *
+	   salesord.unitprice)*(1 - salesord.unitpricediscount)) as totalprice
+FROM salesorderdetail as salesord JOIN products_table as prod
+ON salesord.productid = prod.productid 
+GROUP BY salesord.salesorderID,prod.color
+HAVING prod.color = 'Black';
+----
+
+SELECT salesord.salesorderID,prod.color,sum((salesord.orderqty *
+	   salesord.unitprice)*(1 - salesord.unitpricediscount)) as totalprice
+FROM salesorderdetail as salesord JOIN products_table as prod
+ON salesord.productid = prod.productid 
+GROUP BY salesord.salesorderID,prod.color
+HAVING prod.color = 'Black'	
+AND  
+sum((salesord.orderqty *
+	 salesord.unitprice)*(1 - salesord.unitpricediscount)) > 10000
