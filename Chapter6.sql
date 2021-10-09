@@ -138,3 +138,9 @@ CAST(c2000.p0010001 AS numeric(8,1)))/
 CAST(c2000.p0010001 AS numeric(8,1)) AS Pct_Change
 FROM us_counties_2000 AS c2000 INNER JOIN us_counties_2010 AS c2010
 ON c2000.state_fips = c2010.state_fips;
+
+SELECT AuthorName
+FROM Authors LEFT JOIN Books
+ON Authors.AuthorID = Books.AuthorID 
+WHERE Books.Date > 1980
+
