@@ -1,4 +1,3 @@
-//Multiple outer joins between different collections 
 db.W00101Unit.aggregate([
     {$lookup:
         {
@@ -54,8 +53,10 @@ db.W00101Unit.aggregate([
         }},
     {$unwind:{path:"$W03305result"}},
     {$project:{
+      "UnitName":"$3_UnitName",
       "Unit":"$W03301result.2_Unit",
       "Severity":"$W03305result.21_Severity",
       "Likelihood":"$W03305result.22_Likelihood"
-    }}
+    }},
+    {$match:{'Likelihood':{$exists:true},'Severity':{$exists:true}}}    
     ])
