@@ -52,6 +52,10 @@ db.W00101Unit.aggregate([
                 ],
             as:'W03305result'
         }},
-    {$unwind:{path:"$W03305result"}}
+    {$unwind:{path:"$W03305result"}},
+    {$project:{
+      "Unit":"$W03301result.2_Unit",
+      "Severity":"$W03305result.21_Severity",
+      "Likelihood":"$W03305result.22_Likelihood"
+    }}
     ])
-    
